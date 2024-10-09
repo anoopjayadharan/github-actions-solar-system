@@ -96,30 +96,22 @@ jobs:
             tags: ghcr.io/${{ github.repository_owner }}/solar-system:${{ github.sha }}
 
     dev-deploy:
-      runs-on: ubuntu-latest
       needs: docker
-      environment: 
+      runs-on: ubuntu-latest
+      environment:
         name: development
       steps:
-        - name: Checkout the Repository
-          uses: actions/checkout@v4
-
-        - name: Install Kubectl
-          uses: azure/setup-kubectl@v4
+        - uses: actions/checkout@v4
+        - uses: azure/setup-kubectl@v3
           with:
-            version: 'v1.26.0'
-        
-        - name: Set Kube Context
-          uses: azure/k8s-set-context@v4
+            version: v1.26.0
+        - uses: azure/k8s-set-context@v3
           with:
             method: kubeconfig
-            kubeconfig: ${{ secrets.KUBECONFIG }}
+            kubeconfig: '${{ secrets.KUBECONFIG }}'
+        - run: kubectl version --short -o yaml
 
-        - name: Verify
-          run: |
-            kubectl version
-            kubectl get nodes
-            
+
 
         # - name: Fetch NGINX INGRESS CONTROLLER IP
         #   run: echo "INGRESS_IP=$(kubectl -n ingress-nginx get services ingress-nginx-controller -o jsonpath="{.status.loadBalancer.ingress[0].ip}")" >> "$GITHUB_ENV"
